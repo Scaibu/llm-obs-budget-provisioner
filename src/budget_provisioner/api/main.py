@@ -8,6 +8,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from budget_provisioner.shared.di.container import Container
 from budget_provisioner.infra.tracing.tracer import init_tracer
 from budget_provisioner.api.rest.v1.router import router as v1_router
+from python_shared.http.middleware.correlation_middleware import CorrelationAndTelemetryMiddleware
 
 def create_app(container: Container | None = None) -> FastAPI:
     init_tracer()
@@ -20,6 +21,7 @@ def create_app(container: Container | None = None) -> FastAPI:
         openapi_url="/openapi.json"
     )
     
+    app.add_middleware(CorrelationAndTelemetryMiddleware)
     app.state.container = container or Container()
     
     @app.exception_handler(StarletteHTTPException)
